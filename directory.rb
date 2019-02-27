@@ -116,7 +116,6 @@ file = File.open(filename, "r")
     @students << {name: name, cohort: cohort.to_sym}
   end
   file.close
-  p @students
 end
 
 def try_load_students

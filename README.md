@@ -1,3 +1,10 @@
 # Student directory
 
-Project for Makers Academy precourse week 4
+The student directory script allows you to manage the list of students enrolled
+at Villains Academy.
+
+## How to use
+
+```shell
+ruby directory.rb
+```

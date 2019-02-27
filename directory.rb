@@ -16,34 +16,45 @@ def print_header
   puts "The students of Villains Academy"
   puts "-------------"
 end
-def print(students)
-  students.each do |student|
-    puts "#{student[:name]} (#{student[:cohort]} cohort)" 
+def print_students(students)
+  cohorts = students.map { |student| student[:cohort] }.uniq
+  formatted_students = []
+  cohorts.each do |cohort|
+    students.each_with_index do |student, i|
+      if student[:cohort] == cohort
+        formatted_students << "#{i+1}: #{student[:name]} (#{student[:cohort]} cohort)" 
+      end
+    end
+  end
+  longest_formatted_student = formatted_students.max_by(&:length).length
+  formatted_students.each do |formatted_student|
+    puts formatted_student.center(longest_formatted_student)
   end
 end
 def print_footer(names)
-  puts "Overall, we have #{names.count} great students"
+  print "Overall, we have #{names.count} great student"
+  puts names.count > 1 ? "s" : ""
 end
 def input_students
-  puts "Please enter the names of the students"
-  puts "To finish, just hit return twice"
-  # create an empty array
   students = []
-  # get the first name
-  name = gets.chomp
-  # while the name is not empty, repeat this code
-  while !name.empty? do
-    # add the student hash to the array
-    students << {name: name, cohort: :november}
-    puts "Now we have #{students.count} students"
-    # get another name from the user
+  loop do
+    puts "Enter student name (press enter to finish):"
     name = gets.chomp
+    break if name.empty?
+    cohort = ""
+    loop do
+      puts "Enter cohort:"
+      cohort = gets.chomp
+      break if !cohort.empty?
+    end
+    students << {name: name, cohort: cohort.to_sym}
+    print "Now we have #{students.count} student"
+    puts students.count > 1 ? "s" : ""
   end
-  # return the array of students
   students
 end
 # nothing happens until we call the methods
 students = input_students
 print_header
-print(students)
+print_students(students)
 print_footer(students)

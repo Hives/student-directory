@@ -20,7 +20,7 @@ def print_header
   puts "-------------"
 end
 
-def print_students
+def print_students_list
   if @students.size > 0
     cohorts = @students.map { |student| student[:cohort] }.uniq
     formatted_students = []
@@ -70,25 +70,28 @@ end
 
 def show_students
   print_header
-  print_students
+  print_students_list
   print_footer
+end
+
+def process(selection)
+  case selection
+  when "1"
+    @students = input_students
+  when "2"
+    show_students
+  when "9"
+    exit
+  else
+    puts "I don't know what you meant, try again"
+  end
 end
 
 def interactive_menu
   @students = []
   loop do
     print_menu
-    selection = gets.chomp
-    case selection
-    when "1"
-      @students = input_students
-    when "2"
-      show_students
-    when "9"
-      exit
-    else
-      puts "I don't know what you meant, try again"
-    end
+    process(gets.chomp)
   end
 end
 

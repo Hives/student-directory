@@ -17,23 +17,25 @@ def print_header
   puts "-------------"
 end
 def print_students(students)
-  cohorts = students.map { |student| student[:cohort] }.uniq
-  formatted_students = []
-  cohorts.each do |cohort|
-    students.each_with_index do |student, i|
-      if student[:cohort] == cohort
-        formatted_students << "#{i+1}: #{student[:name]} (#{student[:cohort]} cohort)" 
+  if students.size > 0
+    cohorts = students.map { |student| student[:cohort] }.uniq
+    formatted_students = []
+    cohorts.each do |cohort|
+      students.each_with_index do |student, i|
+        if student[:cohort] == cohort
+          formatted_students << "#{i+1}: #{student[:name]} (#{student[:cohort]} cohort)" 
+        end
       end
     end
-  end
-  longest_formatted_student = formatted_students.max_by(&:length).length
-  formatted_students.each do |formatted_student|
-    puts formatted_student.center(longest_formatted_student)
+    longest_formatted_student = formatted_students.max_by(&:length).length
+    formatted_students.each do |formatted_student|
+      puts formatted_student.center(longest_formatted_student)
+    end
   end
 end
 def print_footer(names)
   print "Overall, we have #{names.count} great student"
-  puts names.count > 1 ? "s" : ""
+  puts names.count == 1 ? "" : "s"
 end
 def input_students
   students = []
@@ -49,7 +51,7 @@ def input_students
     end
     students << {name: name, cohort: cohort.to_sym}
     print "Now we have #{students.count} student"
-    puts students.count > 1 ? "s" : ""
+    puts students.count == 1 ? "" : "s"
   end
   students
 end

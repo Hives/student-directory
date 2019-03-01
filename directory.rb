@@ -22,20 +22,11 @@ end
 
 def print_students_list
   if @students.size > 0
-    cohorts = @students.map { |student| student[:cohort] }.uniq
-    formatted_students = []
-    cohorts.each do |cohort|
-      @students.each_with_index do |student, i|
-        if student[:cohort] == cohort
-          formatted_students << "#{i+1}: #{student[:name]} (#{student[:cohort]} cohort)" 
-        end
-      end
-    end
-    longest_formatted_student = formatted_students.max_by(&:length).length
-    formatted_students.each do |formatted_student|
-      puts formatted_student.center(longest_formatted_student)
+    @students.each do |student|
+      puts "#{student[:name]} (#{student[:cohort]} cohort)" 
     end
   end
+  puts "-------------"
 end
 
 def print_footer
@@ -43,29 +34,12 @@ def print_footer
   puts @students.count == 1 ? "" : "s"
 end
 
-def input_students
-  loop do
-    puts "Enter student name (press enter to finish):"
-    name = STDIN.gets.chomp
-    break if name.empty?
-    cohort = ""
-    loop do
-      puts "Enter cohort:"
-      cohort = STDIN.gets.chomp
-      break if !cohort.empty?
-    end
-    @students << {name: name, cohort: cohort.to_sym}
-    print "Now we have #{@students.count} student"
-    puts @students.count == 1 ? "" : "s"
-  end
-  @students
-end
-
 def print_menu
-  puts "1. Input the students"
+  puts
+  puts "1. Input students"
   puts "2. Show the students"
-  puts "3. Save the list to students.csv"
-  puts "4. Load the list from students.csv"
+  puts "3. Save the list"
+  puts "4. Load a list from a file"
   puts "9. Exit"
 end
 
@@ -95,39 +69,82 @@ end
 def interactive_menu
   loop do
     print_menu
-    process(STDIN.gets.chomp)
+    input = STDIN.gets.chomp
+    puts
+    process(input)
   end
 end
 
 def save_students
-  file = File.open("students.csv", "w")
+  puts 'Enter file to save (hit enter for "students.csv"):'
+  filename = STDIN.gets.chomp
+  filename = 'students.csv' if filename.empty?
+  file = File.open(filename, "w")
   @students.each do |student|
     student_data = [student[:name], student[:cohort]]
     csv_line = student_data.join(",")
     file.puts csv_line
   end
+  puts "Saved students to #{filename}"
   file.close
+end
+
+def add_student(name, cohort)
+  @students << {name: name, cohort: cohort.to_sym}
+end
+
+def input_students
+  loop do
+    puts "Enter student name (press enter to finish):"
+    name = STDIN.gets.chomp
+    break if name.empty?
+    cohort = ""
+    loop do
+      puts "Enter cohort:"
+      cohort = STDIN.gets.chomp
+      break if !cohort.empty?
+    end
+    add_student(name, cohort)
+    print "Now we have #{@students.count} student"
+    puts @students.count == 1 ? "" : "s"
+  end
+  @students
+end
+
+def get_file_to_load(filename = nil)
+  if filename == nil
+    puts 'Enter file to load (hit enter for "students.csv"):'
+    filename = STDIN.gets.chomp
+    filename = 'students.csv' if filename.empty?
+  end
+  if File.exists? filename
+    file = File.open(filename, "r")
+    return file
+  else
+    puts "Sorry, couldn't find #{filename}."
+    return false
+  end
 end
 
 def load_students(filename = "students.csv")
-file = File.open(filename, "r")
-  file.readlines.each do |line|
-    name, cohort = line.chomp.split(',')
-    @students << {name: name, cohort: cohort.to_sym}
+  file = get_file_to_load
+  unless file == false
+    file.readlines.each do |line|
+      name, cohort = line.chomp.split(',')
+      add_student(name, cohort)
+    end
+    file.close
+    puts "Imported #{File.basename(file.path)}."
   end
-  file.close
 end
 
 def try_load_students
-  filename = ARGV.first
-  return if filename.nil?
-  if File.exists? filename
-    load_students(filename)
-    puts "Loaded #{@students.count} from #{filename}"
+  if ARGV.empty?
+    filename = "students.csv"
   else
-    puts "Sorry, #{filename} doesn't exist."
-    exit
+    filename = ARGV.first
   end
+  load_students(get_file_to_load(filename))
 end
 
 # nothing happens until we call the methods

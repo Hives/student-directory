@@ -75,20 +75,6 @@ def interactive_menu
   end
 end
 
-def save_students
-  puts 'Enter file to save (hit enter for "students.csv"):'
-  filename = STDIN.gets.chomp
-  filename = 'students.csv' if filename.empty?
-  file = File.open(filename, "w")
-  @students.each do |student|
-    student_data = [student[:name], student[:cohort]]
-    csv_line = student_data.join(",")
-    file.puts csv_line
-  end
-  puts "Saved students to #{filename}"
-  file.close
-end
-
 def add_student(name, cohort)
   @students << {name: name, cohort: cohort.to_sym}
 end
@@ -111,45 +97,45 @@ def input_students
   @students
 end
 
-def get_file_to_load(filename = nil)
-  if filename == nil
-    puts 'Enter file to load (hit enter for "students.csv"):'
-    filename = STDIN.gets.chomp
-    filename = 'students.csv' if filename.empty?
-  end
-  if File.exists? filename
-    file = File.open(filename, "r")
-    return file
-  else
-    puts "Sorry, couldn't find #{filename}."
-    return false
-  end
-end
-
-def load_students(filename = "students.csv")
-  file = get_file_to_load
-  unless file == false
-    file.readlines.each do |line|
-      name, cohort = line.chomp.split(',')
-      add_student(name, cohort)
+def save_students
+  puts 'Enter file to save (hit enter for "students.csv"):'
+  filename = STDIN.gets.chomp
+  filename = 'students.csv' if filename.empty?
+  File.open(filename, "w") do |file|
+    @students.each do |student|
+      student_data = [student[:name], student[:cohort]]
+      csv_line = student_data.join(",")
+      file.puts csv_line
     end
-    file.close
-    puts "Imported #{File.basename(file.path)}."
+  end
+  puts "Saved students to #{filename}"
+end
+
+def load_students
+  puts 'Enter file to save (hit enter for "students.csv"):'
+  filename = STDIN.gets.chomp
+  filename = 'students.csv' if filename.empty?
+  load_students_from_file(filename)
+end
+
+def load_students_from_file(filename)
+  if File.exists? filename
+    File.open(filename, "r") do |file|
+      file.readlines.each do |line|
+        name, cohort = line.chomp.split(',')
+        add_student(name, cohort)
+      end
+    end
+    puts "Imported #{filename}"
+  else
+    puts "Sorry, couldn't find #{filename}"
   end
 end
 
-def try_load_students
-  if ARGV.empty?
-    filename = "students.csv"
-  else
-    filename = ARGV.first
-  end
-  load_students(get_file_to_load(filename))
+def load_students_if_passed_as_argument
+  load_students_from_file(ARGV.first) if !ARGV.empty?
 end
 
 # nothing happens until we call the methods
-try_load_students
+load_students_if_passed_as_argument
 interactive_menu
-# print_header
-# print_students
-# print_footer

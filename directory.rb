@@ -1,3 +1,5 @@
+require 'csv'
+
 @students = []
 
 # let's put all the students into an array
@@ -101,11 +103,9 @@ def save_students
   puts 'Enter file to save (hit enter for "students.csv"):'
   filename = STDIN.gets.chomp
   filename = 'students.csv' if filename.empty?
-  File.open(filename, "w") do |file|
+  CSV.open(filename, "wb") do |csv|
     @students.each do |student|
-      student_data = [student[:name], student[:cohort]]
-      csv_line = student_data.join(",")
-      file.puts csv_line
+      csv << [student[:name], student[:cohort]]
     end
   end
   puts "Saved students to #{filename}"
@@ -120,11 +120,9 @@ end
 
 def load_students_from_file(filename)
   if File.exists? filename
-    File.open(filename, "r") do |file|
-      file.readlines.each do |line|
-        name, cohort = line.chomp.split(',')
-        add_student(name, cohort)
-      end
+    CSV.foreach(filename) do |row|
+      name, cohort = row
+      add_student(name, cohort)
     end
     puts "Imported #{filename}"
   else
